@@ -92,14 +92,9 @@ void BaseQNAcceleration::initialize(
       "Consider switching to a different acceleration scheme or a different data mapping scheme.");
 
   checkDataIDs(cplData);
-
-  // get all the data IDs as a vector
-  _dataIDs = _primaryDataIDs;
-  // Fetch secondary data IDs, to be relaxed with same coefficients from IQN-ILS
+  // store all data IDs in vector
   for (const DataMap::value_type &pair : cplData) {
-    if (not utils::contained(pair.first, _primaryDataIDs)) {
-      _dataIDs.push_back(pair.first); // add secondary data IDs to the list
-    }
+    _dataIDs.push_back(pair.first);
   }
 
   _matrixCols.push_front(0);
@@ -624,18 +619,8 @@ void BaseQNAcceleration::initializeVectorsAndPreconditioner(const DataMap &cplDa
   _timeGrids.setTimeGrid(cplData, _dataIDs, false);
   _primaryTimeGrids.setTimeGrid(cplData, _primaryDataIDs, _reduced);
 
-  size_t dataSize = 0;
-  for (auto id : _dataIDs) {
-    dataSize += _timeGrids.getTimeGrid(id).size() * cplData.at(id)->getSize();
-  }
-
-  size_t              primaryDataSize = 0;
-  std::vector<size_t> subVectorSizes; // needed for preconditioner
-
-  for (auto id : _primaryDataIDs) {
-    primaryDataSize += _primaryTimeGrids.getTimeGrid(id).size() * cplData.at(id)->getSize();
-    subVectorSizes.push_back(_primaryTimeGrids.getTimeGrid(id).size() * cplData.at(id)->getSize());
-  }
+  const size_t primaryDataSize = std::accumulate(_primaryDataIDs.begin(), _primaryDataIDs.end(), (size_t) 0, [&](size_t val, int id) { return val + _primaryTimeGrids.getTimeGrid(id).size() * cplData.at(id)->getSize(); });
+  const size_t dataSize        = std::accumulate(_dataIDs.begin(), _dataIDs.end(), (size_t) 0, [&](size_t val, int id) { return val + _timeGrids.getTimeGrid(id).size() * cplData.at(id)->getSize(); });
 
   PRECICE_ASSERT(_values.size() == 0, "Values already initialized, something is wrong with the QN method");
   PRECICE_ASSERT(_oldValues.size() == 0, "Values already initialized, something is wrong with the QN method");
@@ -698,9 +683,9 @@ void BaseQNAcceleration::initializeVectorsAndPreconditioner(const DataMap &cplDa
     }
 
     // test that the computed number of unknown per proc equals the number of primaryDataSize actually present on that proc
-    size_t unknowns = _dimOffsets[utils::IntraComm::getRank() + 1] - _dimOffsets[utils::IntraComm::getRank()];
+    const size_t unknowns = _dimOffsets[utils::IntraComm::getRank() + 1] - _dimOffsets[utils::IntraComm::getRank()];
     PRECICE_ASSERT(dataSize == unknowns, dataSize, unknowns);
-    size_t primaryUnknowns = _dimOffsetsPrimary[utils::IntraComm::getRank() + 1] - _dimOffsetsPrimary[utils::IntraComm::getRank()];
+    const size_t primaryUnknowns = _dimOffsetsPrimary[utils::IntraComm::getRank() + 1] - _dimOffsetsPrimary[utils::IntraComm::getRank()];
     PRECICE_ASSERT(primaryDataSize == primaryUnknowns, primaryDataSize, primaryUnknowns);
   } else {
     _infostringstream << fmt::format("\n--------\n DOFs (global): {}\n", dataSize);
@@ -708,6 +693,9 @@ void BaseQNAcceleration::initializeVectorsAndPreconditioner(const DataMap &cplDa
 
   // set the number of global rows in the QRFactorization.
   _qrV.setGlobalRows(getPrimaryLSSystemRows());
+
+  std::vector<size_t> subVectorSizes; // needed for preconditioner
+  std::transform(_primaryDataIDs.cbegin(), _primaryDataIDs.cend(), std::back_inserter(subVectorSizes), [&cplData, this](const auto &d) { return _primaryTimeGrids.getTimeGrid(d).size() * cplData.at(d)->getSize(); });
   _preconditioner->initialize(subVectorSizes);
 
   specializedInitializeVectorsAndPreconditioner(cplData);
