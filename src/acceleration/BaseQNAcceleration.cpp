@@ -592,7 +592,7 @@ void BaseQNAcceleration::writeInfo(
   _infostringstream << std::flush;
 }
 
-void BaseQNAcceleration::ConcatenateCouplingDataWaveform(Eigen::VectorXd &data, Eigen::VectorXd &oldData, const DataMap &cplData, std::vector<int> dataIDs, impl::WaveformTimeGrids timeGrids)
+void BaseQNAcceleration::ConcatenateCouplingDataWaveform(Eigen::VectorXd &data, Eigen::VectorXd &oldData, const DataMap &cplData, std::vector<int> dataIDs, impl::WaveformTimeGrids timeGrids) const
 {
   Eigen::Index offset = 0;
   for (int id : dataIDs) {

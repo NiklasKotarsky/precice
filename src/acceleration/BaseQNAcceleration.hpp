@@ -90,7 +90,7 @@ public:
   /**
    * @brief Returns all IQN involved data IDs.
    */
-  virtual std::vector<int> getPrimaryDataIDs() const
+  virtual std::vector<int> getPrimaryDataIDs() const override final
   {
     return _primaryDataIDs;
   }
@@ -140,7 +140,7 @@ public:
    *  information about the number of cols. This info is needed for
    *  intra-participant communication. Number of its =! _cols in general.
    */
-  virtual int getLSSystemCols() const;
+  virtual int getLSSystemCols() const override final;
 
 protected:
   logging::Logger _log{"acceleration::BaseQNAcceleration"};
@@ -275,10 +275,6 @@ protected:
   /// Writes info to the _infostream (also in parallel)
   void writeInfo(const std::string &s, bool allProcs = false);
 
-  /// @copydoc acceleration::Acceleration::concatenateCouplingData
-  void concatenateCouplingData(
-      const DataMap &cplData, const std::vector<DataID> &dataIDs, Eigen::VectorXd &targetValues, Eigen::VectorXd &targetOldValues) const override final;
-
   int its = 0, tWindows = 0;
 
 private:
@@ -294,7 +290,7 @@ private:
   virtual void specializedInitializeVectorsAndPreconditioner(const DataMap &cplData) = 0;
 
   /// @brief Samples and concatenates the data and old data in cplData into a long vector
-  void ConcatenateCouplingDataWaveform(Eigen::VectorXd &data, Eigen::VectorXd &oldData, const DataMap &cplData, std::vector<int> dataIDs, impl::WaveformTimeGrids timeGrids);
+  void ConcatenateCouplingDataWaveform(Eigen::VectorXd &data, Eigen::VectorXd &oldData, const DataMap &cplData, std::vector<int> dataIDs, impl::WaveformTimeGrids timeGrids) const;
 
   /// @brief List of the time grid to which all the data will be interpolated to
   /// Stored in a map, since each data entry has its own time grid
