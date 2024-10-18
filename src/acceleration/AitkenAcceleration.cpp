@@ -136,5 +136,4 @@ void AitkenAcceleration::concatenateCouplingData(
     offset += size;
   }
 }
-
 } // namespace precice::acceleration

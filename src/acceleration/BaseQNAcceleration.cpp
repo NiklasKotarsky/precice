@@ -214,7 +214,6 @@ void BaseQNAcceleration::updateDifferenceMatrices(
 void BaseQNAcceleration::performAcceleration(
     DataMap &cplData)
 {
-
   PRECICE_TRACE(_primaryDataIDs.size(), cplData.size());
 
   profiling::Event e("cpl.computeQuasiNewtonUpdate", profiling::Synchronize);
@@ -317,7 +316,7 @@ void BaseQNAcceleration::performAcceleration(
     Eigen::VectorXd xUpdate = Eigen::VectorXd::Zero(_values.size());
     computeQNUpdate(xUpdate);
 
-    // Apply the Quasi-Newton update
+    // Apply the quasi-Newton update
     _values += xUpdate;
 
     // pending deletion: delete old V, W matrices if timeWindowsReused = 0
@@ -354,9 +353,7 @@ void BaseQNAcceleration::performAcceleration(
         "filter or increase its threshold (larger epsilon).");
   }
 
-  /**
-  * apply quasiNewton update to waveform
-  */
+  // Apply the quasi-Newton update to the waveform
   applyQNValuesToCouplingData(cplData);
 
   // number of iterations (usually equals number of columns in LS-system)
@@ -597,7 +594,6 @@ void BaseQNAcceleration::writeInfo(
 
 void BaseQNAcceleration::ConcatenateCouplingDataWaveform(Eigen::VectorXd &data, Eigen::VectorXd &oldData, const DataMap &cplData, std::vector<int> dataIDs, impl::WaveformTimeGrids timeGrids)
 {
-
   Eigen::Index offset = 0;
   for (int id : dataIDs) {
     auto            waveform = cplData.at(id)->timeStepsStorage();
