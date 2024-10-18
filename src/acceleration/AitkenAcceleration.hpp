@@ -28,13 +28,13 @@ public:
   }
 
   virtual void initialize(
-      const DataMap &cpldata);
+      const DataMap &cpldata) override final;
 
   virtual void performAcceleration(
-      DataMap &cpldata);
+      DataMap &cpldata) override final;
 
   virtual void iterationsConverged(
-      const DataMap &cpldata);
+      const DataMap &cpldata) override final;
 
 private:
   /// @brief Concatenates the data and old data in cplData into two long vectors
