@@ -234,8 +234,8 @@ void BaseQNAcceleration::performAcceleration(
     _primaryTimeGrids.moveTimeGridToNewWindow(cplData);
   }
   /// Sample all the data to the corresponding time grid in _timeGrids and concatenate everything into a long vector
-  ConcatenateCouplingDataWaveform(_values, _oldValues, cplData, _dataIDs, _timeGrids);
-  ConcatenateCouplingDataWaveform(_primaryValues, _oldPrimaryValues, cplData, _primaryDataIDs, _primaryTimeGrids);
+  concatenateCouplingDataWaveform(_values, _oldValues, cplData, _dataIDs, _timeGrids);
+  concatenateCouplingDataWaveform(_primaryValues, _oldPrimaryValues, cplData, _primaryDataIDs, _primaryTimeGrids);
 
   /** update the difference matrices V,W  includes:
    * scaling of values
@@ -419,8 +419,8 @@ void BaseQNAcceleration::iterationsConverged(
     _primaryTimeGrids.moveTimeGridToNewWindow(cplData);
   }
   /// Sample all the data to the corresponding time grid in _timeGrids and concatenate everything into a long vector
-  ConcatenateCouplingDataWaveform(_values, _oldValues, cplData, _dataIDs, _timeGrids);
-  ConcatenateCouplingDataWaveform(_primaryValues, _oldPrimaryValues, cplData, _primaryDataIDs, _primaryTimeGrids);
+  concatenateCouplingDataWaveform(_values, _oldValues, cplData, _dataIDs, _timeGrids);
+  concatenateCouplingDataWaveform(_primaryValues, _oldPrimaryValues, cplData, _primaryDataIDs, _primaryTimeGrids);
   updateDifferenceMatrices(cplData);
 
   if (not _matrixCols.empty() && _matrixCols.front() == 0) { // Did only one iteration
@@ -592,7 +592,7 @@ void BaseQNAcceleration::writeInfo(
   _infostringstream << std::flush;
 }
 
-void BaseQNAcceleration::ConcatenateCouplingDataWaveform(Eigen::VectorXd &data, Eigen::VectorXd &oldData, const DataMap &cplData, std::vector<int> dataIDs, impl::WaveformTimeGrids timeGrids) const
+void BaseQNAcceleration::concatenateCouplingDataWaveform(Eigen::VectorXd &data, Eigen::VectorXd &oldData, const DataMap &cplData, std::vector<int> dataIDs, impl::WaveformTimeGrids timeGrids) const
 {
   Eigen::Index offset = 0;
   for (int id : dataIDs) {

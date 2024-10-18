@@ -290,7 +290,7 @@ private:
   virtual void specializedInitializeVectorsAndPreconditioner(const DataMap &cplData) = 0;
 
   /// @brief Samples and concatenates the data and old data in cplData into a long vector
-  void ConcatenateCouplingDataWaveform(Eigen::VectorXd &data, Eigen::VectorXd &oldData, const DataMap &cplData, std::vector<int> dataIDs, impl::WaveformTimeGrids timeGrids) const;
+  void concatenateCouplingDataWaveform(Eigen::VectorXd &data, Eigen::VectorXd &oldData, const DataMap &cplData, std::vector<int> dataIDs, impl::WaveformTimeGrids timeGrids) const;
 
   /// @brief List of the time grid to which all the data will be interpolated to
   /// Stored in a map, since each data entry has its own time grid
