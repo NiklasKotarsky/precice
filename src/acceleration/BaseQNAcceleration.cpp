@@ -619,8 +619,14 @@ void BaseQNAcceleration::initializeVectorsAndPreconditioner(const DataMap &cplDa
   _timeGrids.setTimeGrid(cplData, _dataIDs, false);
   _primaryTimeGrids.setTimeGrid(cplData, _primaryDataIDs, _reduced);
 
-  const size_t primaryDataSize = std::accumulate(_primaryDataIDs.begin(), _primaryDataIDs.end(), (size_t) 0, [&](size_t val, int id) { return val + _primaryTimeGrids.getTimeGrid(id).size() * cplData.at(id)->getSize(); });
-  const size_t dataSize        = std::accumulate(_dataIDs.begin(), _dataIDs.end(), (size_t) 0, [&](size_t val, int id) { return val + _timeGrids.getTimeGrid(id).size() * cplData.at(id)->getSize(); });
+  // Helper function
+  auto addTimeSliceSize = [&](size_t sum, int id, impl::WaveformTimeGrids timeGrids) { return sum + timeGrids.getTimeGrid(id).size() * cplData.at(id)->getSize(); };
+
+  // Size of primary data
+  const size_t primaryDataSize = std::accumulate(_primaryDataIDs.begin(), _primaryDataIDs.end(), (size_t) 0, [&](size_t sum, int id) { return addTimeSliceSize(sum, id, _primaryTimeGrids); });
+
+  // Size of values
+  const size_t dataSize = std::accumulate(_dataIDs.begin(), _dataIDs.end(), (size_t) 0, [&](size_t sum, int id) { return addTimeSliceSize(sum, id, _timeGrids); });
 
   PRECICE_ASSERT(_values.size() == 0, "Values already initialized, something is wrong with the QN method");
   PRECICE_ASSERT(_oldValues.size() == 0, "Values already initialized, something is wrong with the QN method");
