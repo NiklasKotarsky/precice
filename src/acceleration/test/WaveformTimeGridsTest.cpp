@@ -26,9 +26,9 @@ struct AccelerationWaveformTimeGridsTestsFixture {
   using DataMap = std::map<int, cplscheme::PtrCouplingData>;
 };
 
-BOOST_FIXTURE_TEST_SUITE(AccelerationTests, AccelerationWaveformTimeGridsTestsFixture)
+BOOST_FIXTURE_TEST_SUITE(WaveformTimeGridsTest, AccelerationWaveformTimeGridsTestsFixture)
 
-BOOST_AUTO_TEST_CASE(testWaveformTimeGrids)
+BOOST_AUTO_TEST_CASE(TestMoveAndScaleTimeGrids)
 {
   PRECICE_TEST(1_rank);
   std::vector<int> dataIDs;
