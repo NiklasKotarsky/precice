@@ -206,7 +206,7 @@ protected:
   Eigen::MatrixXd _matrixW;
 
   /// @brief  if _reduced = false uses the full QN-WI and if _reduced = true uses rQN-WI form the paper https://onlinelibrary.wiley.com/doi/10.1002/nme.6443
-  bool _reduced;
+  const bool _reduced;
 
   /// @brief Stores the current QR decomposition ov _matrixV, can be updated via deletion/insertion of columns
   impl::QRFactorization _qrV;
