@@ -98,7 +98,7 @@ public:
   /**
    * @brief Initializes the acceleration.
    */
-  virtual void initialize(const DataMap &cplData) override;
+  virtual void initialize(const DataMap &cplData) override final;
 
   /**
    * @brief Performs one acceleration step.
@@ -128,10 +128,10 @@ public:
   virtual void importState(io::TXTReader &reader) override final;
 
   /// how many QN columns were deleted in this time window
-  virtual int getDeletedColumns() const override final;
+  int getDeletedColumns() const;
 
   /// how many QN columns were dropped (went out of scope) in this time window
-  virtual int getDroppedColumns() const override final;
+  int getDroppedColumns() const;
 
   /** @brief: computes number of cols in least squares system, i.e, number of cols in
    *  _matrixV, _matrixW, _qrV, etc..
@@ -140,7 +140,7 @@ public:
    *  information about the number of cols. This info is needed for
    *  intra-participant communication. Number of its =! _cols in general.
    */
-  virtual int getLSSystemCols() const override final;
+  int getLSSystemCols() const;
 
 protected:
   logging::Logger _log{"acceleration::BaseQNAcceleration"};
@@ -246,8 +246,8 @@ protected:
   std::ostringstream _infostringstream;
   std::fstream       _infostream;
 
-  int getLSSystemRows();
-  int getPrimaryLSSystemRows();
+  int getLSSystemRows() const;
+  int getPrimaryLSSystemRows() const;
 
   /**
    * @brief Marks a iteration sequence as converged.

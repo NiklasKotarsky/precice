@@ -58,7 +58,7 @@ IQNIMVJAcceleration::IQNIMVJAcceleration(
       _svdJ(RSSVDtruncationEps, preconditioner),
       _alwaysBuildJacobian(alwaysBuildJacobian),
       _imvjRestartType(imvjRestartType),
-      _imvjRestart(false),
+      _imvjRestart(imvjRestartType > 0),
       _chunkSize(chunkSize),
       _RSLSreusedTimeWindows(RSLSreusedTimeWindows),
       _nbRestarts(0),
@@ -68,19 +68,6 @@ IQNIMVJAcceleration::IQNIMVJAcceleration(
 
 // ==================================================================================
 IQNIMVJAcceleration::~IQNIMVJAcceleration() = default;
-
-// ==================================================================================
-void IQNIMVJAcceleration::initialize(
-    const DataMap &cplData)
-{
-  PRECICE_TRACE();
-
-  // do common QN acceleration initialization
-  BaseQNAcceleration::initialize(cplData);
-
-  if (_imvjRestartType > 0)
-    _imvjRestart = true;
-}
 
 // ==================================================================================
 void IQNIMVJAcceleration::updateDifferenceMatrices(
@@ -746,33 +733,6 @@ void IQNIMVJAcceleration::removeMatrixColumn(
   BaseQNAcceleration::removeMatrixColumn(columnIndex);
 }
 
-// ==================================================================================
-void IQNIMVJAcceleration::removeMatrixColumnRSLS(
-    int columnIndex)
-{
-  PRECICE_TRACE(columnIndex, _matrixV_RSLS.cols());
-  PRECICE_ASSERT(_matrixV_RSLS.cols() > 1);
-
-  utils::removeColumnFromMatrix(_matrixV_RSLS, columnIndex);
-  utils::removeColumnFromMatrix(_matrixW_RSLS, columnIndex);
-
-  // Reduce column count
-  std::deque<int>::iterator iter = _matrixCols_RSLS.begin();
-  int                       cols = 0;
-  while (iter != _matrixCols_RSLS.end()) {
-    cols += *iter;
-    if (cols > columnIndex) {
-      PRECICE_ASSERT(*iter > 0);
-      *iter -= 1;
-      if (*iter == 0) {
-        _matrixCols_RSLS.erase(iter);
-      }
-      break;
-    }
-    iter++;
-  }
-}
-
 void IQNIMVJAcceleration::specializedInitializeVectorsAndPreconditioner(const DataMap &cplData)
 {
   int entries        = _primaryResiduals.size();
@@ -812,6 +772,33 @@ void IQNIMVJAcceleration::specializedInitializeVectorsAndPreconditioner(const Da
   if (utils::IntraComm::isPrimary() || !utils::IntraComm::isParallel()) {
     _infostringstream << " IMVJ restart mode: " << _imvjRestart << "\n chunk size: " << _chunkSize << "\n trunc eps: " << _svdJ.getThreshold() << "\n R_RS: " << _RSLSreusedTimeWindows << "\n--------\n"
                       << '\n';
+  }
+}
+
+// ==================================================================================
+void IQNIMVJAcceleration::removeMatrixColumnRSLS(
+    int columnIndex)
+{
+  PRECICE_TRACE(columnIndex, _matrixV_RSLS.cols());
+  PRECICE_ASSERT(_matrixV_RSLS.cols() > 1);
+
+  utils::removeColumnFromMatrix(_matrixV_RSLS, columnIndex);
+  utils::removeColumnFromMatrix(_matrixW_RSLS, columnIndex);
+
+  // Reduce column count
+  std::deque<int>::iterator iter = _matrixCols_RSLS.begin();
+  int                       cols = 0;
+  while (iter != _matrixCols_RSLS.end()) {
+    cols += *iter;
+    if (cols > columnIndex) {
+      PRECICE_ASSERT(*iter > 0);
+      *iter -= 1;
+      if (*iter == 0) {
+        _matrixCols_RSLS.erase(iter);
+      }
+      break;
+    }
+    iter++;
   }
 }
 
